@@ -413,7 +413,7 @@ def cross_selective_scan(
     return (y.to(x.dtype) if to_dtype else y)
 
 
-class OSSM(nn.Module):
+class ODPM(nn.Module):
     def __init__(
             self,
             d_model=96,
@@ -588,14 +588,14 @@ class VGG1(nn.Module):
         self.layer0 = nn.Sequential(*list(vgg.children())[0][0:5])
         self.layer1 = nn.Sequential(*list(vgg.children())[0][5:10])
         self.layer2 = nn.Sequential(*list(vgg.children())[0][10:17])
-        self.layer3 = OSSM(d_model=256, forward_type="v2", out_channels=320)
-        self.layer4 = OSSM(d_model=320, forward_type="v2", out_channels=512)
+        self.layer3 = ODPM(d_model=256, forward_type="v2", out_channels=320)
+        self.layer4 = ODPM(d_model=320, forward_type="v2", out_channels=512)
 
-        self.Corr1 = CorrelationModule(64, 64)
-        self.Corr2 = CorrelationModule(128, 128)
-        self.Corr3 = CorrelationModule(256, 256)
-        self.Corr4 = CorrelationModule(320, 320)
-        self.Corr5 = CorrelationModule(512, 512)
+        self.Corr1 = ASCRM(64, 64)
+        self.Corr2 = ASCRM(128, 128)
+        self.Corr3 = ASCRM(256, 256)
+        self.Corr4 = ASCRM(320, 320)
+        self.Corr5 = ASCRM(512, 512)
 
         # self.conv1 = nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1)
         # self.conv2 = nn.Conv2d(256, 128, kernel_size=3, stride=1, padding=1)
@@ -684,9 +684,9 @@ class DSConv3x3(nn.Module):
     def forward(self, x):
         return self.conv(x)
 
-class CorrelationModule(nn.Module):
+class ASCRM(nn.Module):
     def __init__(self, all_channel=128, all_dim=32):
-        super(CorrelationModule, self).__init__()
+        super(ASCRM, self).__init__()
         self.conv_e = nn.Conv1d(all_channel, all_channel, kernel_size=1, bias=False)
         self.channel = all_channel
         self.dim = all_dim * all_dim
